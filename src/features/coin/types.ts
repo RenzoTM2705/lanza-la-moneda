@@ -4,6 +4,7 @@ export type CoinFace = 'cara' | 'sello'
 
 export interface CoinMaterial {
     color: string
+    edgeColor: string 
     metalness: number
     roughness: number
 }
