@@ -1,3 +1,5 @@
+import { forwardRef } from 'react'
+import type { Group } from 'three'
 import { CoinFace } from './CoinFace'
 import type { CoinPreset } from '../types'
 
@@ -7,32 +9,44 @@ interface CoinProps {
     thickness?: number
 }
 
-export function Coin({ preset, radius = 1, thickness = 0.15 }: CoinProps) {
-    return (
-        <group position={[0, 0.075, 0]}>
-            {/* 1. El borde exterior (el canto de la moneda, un poco más oscuro) */}
-            <mesh>
-                <cylinderGeometry args={[radius, radius, thickness, 96]} />
-                <meshBasicMaterial color="#c28b00" /> {/* Dorado más oscuro */}
-            </mesh>
+export const Coin = forwardRef<Group, CoinProps>(
+    ({ preset, radius = 1, thickness = 0.25 }, ref) => { // Grosor aumentado a 0.25
+        return (
+            <group ref={ref} position={[0, 0.125, 0]}> {/* Mitad del grosor para que descanse en la mesa */}
 
-            {/* 2. La cara principal (ligeramente más pequeña para que se vea el borde) */}
-            <mesh position={[0, thickness / 2, 0]}>
-                <cylinderGeometry args={[radius * 0.95, radius * 0.95, 0.01, 96]} />
-                <meshBasicMaterial color={preset.material.color} />
-            </mesh>
+                {/* Canto principal */}
+                <mesh>
+                    <cylinderGeometry args={[radius, radius, thickness, 96]} />
+                    <meshBasicMaterial color="#c28b00" />
+                </mesh>
 
-            {/* 3. Un anillo interior de relieve en la cara superior */}
-            <mesh position={[0, thickness / 2 + 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[radius * 0.8, radius * 0.85, 64]} />
-                <meshBasicMaterial color="#c28b00" /> {/* Dorado más oscuro */}
-            </mesh>
+                {/* Cara superior (Cara) */}
+                <mesh position={[0, thickness / 2, 0]}>
+                    <cylinderGeometry args={[radius * 0.95, radius * 0.95, 0.01, 96]} />
+                    <meshBasicMaterial color={preset.material.color} />
+                </mesh>
+                {/* Anillo de relieve superior */}
+                <mesh position={[0, thickness / 2 + 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                    <ringGeometry args={[radius * 0.8, radius * 0.85, 64]} />
+                    <meshBasicMaterial color="#c28b00" />
+                </mesh>
 
-            {/* 4. El texto / símbolo en el centro */}
-            <CoinFace symbol={preset.faceSymbols.cara} radius={radius} facing="front" />
+                {/* Cara inferior (Sello) - Espejada en Y */}
+                <mesh position={[0, -thickness / 2, 0]}>
+                    <cylinderGeometry args={[radius * 0.95, radius * 0.95, 0.01, 96]} />
+                    <meshBasicMaterial color={preset.material.color} />
+                </mesh>
+                {/* Anillo de relieve inferior */}
+                <mesh position={[0, -thickness / 2 - 0.006, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                    <ringGeometry args={[radius * 0.8, radius * 0.85, 64]} />
+                    <meshBasicMaterial color="#c28b00" />
+                </mesh>
 
-            {/* Mantenemos la cara trasera por si giramos la moneda en el futuro */}
-            <CoinFace symbol={preset.faceSymbols.sello} radius={radius} facing="back" />
-        </group>
-    )
-}
+                {/* Textos en ambas caras */}
+                <CoinFace symbol={preset.faceSymbols.cara} radius={radius} facing="front" thickness={thickness} />
+                <CoinFace symbol={preset.faceSymbols.sello} radius={radius} facing="back" thickness={thickness} />
+            </group>
+        )
+    }
+)
+Coin.displayName = 'Coin'

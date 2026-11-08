@@ -5,18 +5,20 @@ interface CoinFaceProps {
     symbol: CoinFaceSymbol
     radius: number
     facing: 'front' | 'back'
+    thickness: number
 }
 
-export function CoinFace({ symbol, radius, facing }: CoinFaceProps) {
+export function CoinFace({ symbol, radius, facing, thickness }: CoinFaceProps) {
+    // El texto se coloca justo por encima/debajo de la cara
+    const yOffset = facing === 'front' ? (thickness / 2 + 0.01) : -(thickness / 2 + 0.01)
+    // Rotamos para que mire hacia arriba (front) o hacia abajo (back)
     const rotationX = facing === 'front' ? -Math.PI / 2 : Math.PI / 2
-    // Subimos un poco el texto para que quede por encima del nuevo relieve
-    const yOffset = facing === 'front' ? 0.085 : -0.085
 
     return (
-        <group rotation={[rotationX, 0, 0]} position={[0, yOffset, 0]}>
+        <group position={[0, yOffset, 0]} rotation={[rotationX, 0, 0]}>
             <Text
                 position={[0, 0, 0.002]}
-                fontSize={radius * 0.7} // Ligeramente más pequeño para que quepa en el anillo
+                fontSize={radius * 0.7}
                 color={symbol.accent}
                 anchorX="center"
                 anchorY="middle"
