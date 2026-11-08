@@ -1,75 +1,83 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    --font-sans: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  --color-bg: #0a0a0b;
-  --color-bg-elevated: #141416;
-  --color-surface: #1c1c1f;
-  --color-border: #2a2a2e;
-  --color-text: #f4f4f5;
-  --color-text-muted: #a1a1aa;
-  --color-gold: #d4af37;
-  --color-silver: #c0c0c8;
-  --color-bronze: #b87333;
+    --color-bg: #f3e3c3;
+    --color-bg-elevated: #e8d2a8;
+    --color-surface: #d9b97f;
+    --color-border: #7a4a2b;
+    --color-text: #2b1d12;
+    --color-text-muted: #6b4a33;
+    --color-accent: #d9480f;
+    --color-accent-2: #1f6f6b;
+    --color-gold: #e0a82e;
+    --color-cream: #fff6e0;
 }
 
 @layer base {
-  html,
-  body,
-  #root {
-    height: 100%;
-  }
 
-  body {
-    margin: 0;
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-  }
+    html,
+    body,
+    #root {
+        height: 100%;
+    }
 
-  :focus-visible {
-    outline: 2px solid var(--color-gold);
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
+    body {
+        margin: 0;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        background-image:
+            radial-gradient(circle at 20% 10%, rgba(217, 72, 15, 0.08), transparent 45%),
+            radial-gradient(circle at 80% 90%, rgba(31, 111, 107, 0.08), transparent 45%);
+    }
 
-  ::selection {
-    background: var(--color-gold);
-    color: #0a0a0b;
-  }
+    :focus-visible {
+        outline: 3px solid var(--color-accent);
+        outline-offset: 3px;
+        border-radius: 6px;
+    }
+
+    ::selection {
+        background: var(--color-accent);
+        color: var(--color-cream);
+    }
 }
 
-/* Parpadeo lento y sutil del título — se respeta reduced-motion más abajo */
 @keyframes title-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.65;
-  }
+
+    0%,
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 0 rgba(217, 72, 15, 0);
+    }
+
+    50% {
+        opacity: 0.8;
+        text-shadow: 0 0 18px rgba(217, 72, 15, 0.45);
+    }
 }
 
 .title-pulse {
-  animation: title-pulse 4.5s ease-in-out infinite;
+    animation: title-pulse 4.5s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .title-pulse {
-    animation: none;
-    opacity: 1;
-  }
+    .title-pulse {
+        animation: none;
+        opacity: 1;
+    }
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
 }
