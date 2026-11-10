@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useFrame } from '@react-three/fiber'
+import type { Group } from 'three'
 import { Lighting } from './Lighting'
 import { Table } from './Table'
 import { Coin } from './Coin'
 import { useCoinFlip } from '../hooks/useCoinFlip'
+import { usePrefersReducedMotion } from '../../../hooks/usePrefersReducedMotion'
 import type { CoinPreset, CoinFace } from '../types'
 
 interface CoinSceneProps {
@@ -13,8 +15,11 @@ interface CoinSceneProps {
 }
 
 function SceneContent({ preset, flipRequest, onSettled }: CoinSceneProps) {
-    const { groupRef, flip } = useCoinFlip(onSettled)
+    const prefersReducedMotion = usePrefersReducedMotion()
+    const { groupRef, flip, shakeState } = useCoinFlip(onSettled, prefersReducedMotion)
     const lastRequest = useRef<CoinFace | null>(null)
+
+    const sceneGroupRef = useRef<Group>(null)
 
     useEffect(() => {
         if (flipRequest && flipRequest !== lastRequest.current) {
@@ -26,12 +31,25 @@ function SceneContent({ preset, flipRequest, onSettled }: CoinSceneProps) {
         }
     }, [flipRequest, flip])
 
+    // Aplicamos la sacudida al grupo entero
+    useFrame(() => {
+        if (sceneGroupRef.current) {
+            if (shakeState.current.time > 0) {
+                const intensity = 0.1 * (shakeState.current.time / 0.2)
+                sceneGroupRef.current.position.x = (Math.random() - 0.5) * intensity
+                sceneGroupRef.current.position.y = (Math.random() - 0.5) * intensity
+            } else {
+                sceneGroupRef.current.position.set(0, 0, 0)
+            }
+        }
+    })
+
     return (
-        <>
+        <group ref={sceneGroupRef}>
             <Lighting />
             <Table />
             <Coin preset={preset} ref={groupRef} />
-        </>
+        </group>
     )
 }
 

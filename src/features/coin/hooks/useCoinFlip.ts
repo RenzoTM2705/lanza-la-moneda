@@ -6,11 +6,11 @@ import { playImpactSound } from '../logic/sounds'
 
 type FlipStatus = 'idle' | 'flipping' | 'settled'
 
-export function useCoinFlip(onSettled: (face: CoinFace) => void) {
+export function useCoinFlip(onSettled: (face: CoinFace) => void, prefersReducedMotion: boolean) {
     const groupRef = useRef<Group>(null)
     const [status, setStatus] = useState<FlipStatus>('idle')
 
-    // Estado para la sacudida (se aplicará al grupo de la escena)
+    // Ahora el hook maneja el tiempo de la sacudida
     const shakeState = useRef({ time: 0 })
 
     const animState = useRef({
@@ -26,7 +26,7 @@ export function useCoinFlip(onSettled: (face: CoinFace) => void) {
         if (status === 'flipping' || !groupRef.current) return
 
         const startRotation = groupRef.current.rotation.x
-        const turns = 4
+        const turns = prefersReducedMotion ? 1 : 4
         const spinAngle = turns * Math.PI * 2
         const faceOffset = face === 'cara' ? 0 : Math.PI
 
@@ -35,7 +35,7 @@ export function useCoinFlip(onSettled: (face: CoinFace) => void) {
 
         animState.current = {
             startTime: performance.now(),
-            duration: 2500,
+            duration: prefersReducedMotion ? 500 : 2500,
             startRotation,
             targetRotation,
             finalFace: face,
@@ -43,7 +43,7 @@ export function useCoinFlip(onSettled: (face: CoinFace) => void) {
         }
 
         setStatus('flipping')
-    }, [status])
+    }, [status, prefersReducedMotion])
 
     useFrame((_, delta) => {
         const group = groupRef.current
@@ -57,7 +57,7 @@ export function useCoinFlip(onSettled: (face: CoinFace) => void) {
             group.rotation.x = animState.current.startRotation +
                 (animState.current.targetRotation - animState.current.startRotation) * easeOut
 
-            const jumpHeight = 1.5
+            const jumpHeight = prefersReducedMotion ? 0 : 1.5
             group.position.y = 0.125 + Math.sin(progress * Math.PI) * jumpHeight
 
             if (progress === 1) {
@@ -67,12 +67,18 @@ export function useCoinFlip(onSettled: (face: CoinFace) => void) {
 
                 playImpactSound()
 
-                // Iniciamos el tiempo de sacudida
-                shakeState.current.time = 0.2
+                if (!prefersReducedMotion) {
+                    shakeState.current.time = 0.2
+                }
 
                 setStatus('settled')
                 onSettled(animState.current.finalFace)
             }
+        }
+
+        // Actualizamos el tiempo de sacudida aquí
+        if (shakeState.current.time > 0) {
+            shakeState.current.time -= delta
         }
     })
 
